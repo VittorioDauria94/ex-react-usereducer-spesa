@@ -4,19 +4,36 @@ import products from "./data/products";
 function App() {
   const [addedProducts, setAddedProducts] = useState([]);
 
+  function addProduct(prev, product) {
+    return [...prev, { ...product, quantity: 1 }];
+  }
+
+  function updateProductQuantity(prev, product) {
+    return prev.map((p) =>
+      p.name === product.name ? { ...p, quantity: p.quantity + 1 } : p,
+    );
+  }
+
   function addToCart(product) {
     setAddedProducts((prev) => {
       const existingProduct = prev.find((p) => p.name === product.name);
 
       if (existingProduct) {
-        return prev.map((p) =>
-          p.name === product.name ? { ...p, quantity: p.quantity + 1 } : p,
-        );
+        return updateProductQuantity(prev, product);
       }
 
-      return [...prev, { ...product, quantity: 1 }];
+      return addProduct(prev, product);
     });
   }
+
+  function removeFromCart(i) {
+    setAddedProducts((prev) => prev.filter((p, index) => index !== i));
+  }
+
+  const total = addedProducts.reduce(
+    (acc, curr) => acc + curr.price * curr.quantity,
+    0,
+  );
 
   return (
     <>
@@ -30,8 +47,11 @@ function App() {
             </summary>
 
             <ul className="list-group list-group-flush mt-3">
-              {products.map((product, i) => (
-                <li key={i} className="list-group-item px-0 py-3 border-bottom">
+              {products.map((product) => (
+                <li
+                  key={product.name}
+                  className="list-group-item px-0 py-3 border-bottom"
+                >
                   <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
                     <div>
                       <h5 className="mb-1 fw-semibold">{product.name}</h5>
@@ -52,15 +72,31 @@ function App() {
             </ul>
           </details>
         </div>
-        <div className="mx-auto shadow-sm border-0 rounded-4 p-4 bg-white">
+        <div className="mx-auto shadow-sm border-0 rounded-4 p-4 bg-white mt-4">
           <h2 className="mb-4 text-center fw-bold">Carrello</h2>
           <ul className="list-group list-group-flush mt-3">
             {addedProducts.map((prod, i) => (
-              <li key={i} className="list-group-item px-0 py-3 border-bottom">
-                {prod.name} - {prod.price.toFixed(2)}€ - Quantità: {prod.quantity}
+              <li
+                key={prod.name}
+                className="list-group-item px-0 py-3 border-bottom"
+              >
+                <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                  <h5 className="mb-1 fw-semibold">{prod.name}</h5>
+                  <span className="badge text-bg-light border fs-6">
+                    Prezzo: {prod.price.toFixed(2)}€ - Quantità: {prod.quantity}
+                  </span>
+
+                  <button
+                    className="btn btn-danger px-4 rounded-pill"
+                    onClick={() => removeFromCart(i)}
+                  >
+                    Rimuovi
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
+          <h4 className="pt-3">Totale spesa: {`${total.toFixed(2)}€`}</h4>
         </div>
       </div>
     </>
