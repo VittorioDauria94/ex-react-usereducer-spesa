@@ -14,6 +14,16 @@ function App() {
     );
   }
 
+  function setProductQuantity(product, value) {
+    const newQuantity = Math.max(1, parseInt(value) || 1);
+
+    setAddedProducts((prev) =>
+      prev.map((p) =>
+        p.name === product.name ? { ...p, quantity: newQuantity } : p,
+      ),
+    );
+  }
+
   function addToCart(product) {
     setAddedProducts((prev) => {
       const existingProduct = prev.find((p) => p.name === product.name);
@@ -82,9 +92,30 @@ function App() {
               >
                 <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
                   <h5 className="mb-1 fw-semibold">{prod.name}</h5>
-                  <span className="badge text-bg-light border fs-6">
-                    Prezzo: {prod.price.toFixed(2)}€ - Quantità: {prod.quantity}
-                  </span>
+
+                  <div className="d-flex align-items-center gap-3 flex-wrap">
+                    <span className="badge text-bg-light border fs-6">
+                      Prezzo: {prod.price.toFixed(2)}€
+                    </span>
+
+                    <div className="d-flex align-items-center gap-2">
+                      <label htmlFor={`quantity-${prod.name}`} className="mb-0">
+                        Quantità:
+                      </label>
+                      <input
+                        id={`quantity-${prod.name}`}
+                        type="number"
+                        min="1"
+                        step="1"
+                        className="form-control"
+                        style={{ width: "90px" }}
+                        value={prod.quantity}
+                        onChange={(e) =>
+                          setProductQuantity(prod, e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
 
                   <button
                     className="btn btn-danger px-4 rounded-pill"
